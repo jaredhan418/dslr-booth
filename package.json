@@ -1,0 +1,45 @@
+{
+  "name": "dslr-booth",
+  "version": "1.0.0",
+  "description": "DSLR Photo Booth Application for Windows with Sony/Canon camera support",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win"
+  },
+  "keywords": [
+    "dslr",
+    "photo-booth",
+    "camera",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "gphoto2": "^0.1.4"
+  },
+  "build": {
+    "appId": "com.dslr-booth.app",
+    "productName": "DSLR Booth",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "assets/**/*",
+      "modules/**/*"
+    ]
+  }
+}
