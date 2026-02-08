@@ -3,7 +3,8 @@
 一个功能强大的 Electron 桌面应用程序，用于在 Windows 平台上通过 USB 控制 Sony/Canon 数码相机，实现专业的照片拍摄体验。
 
 ![DSLR Photo Booth](https://img.shields.io/badge/platform-Windows-blue)
-![Electron](https://img.shields.io/badge/Electron-27.0.0-brightgreen)
+![Electron](https://img.shields.io/badge/Electron-40.0.0-brightgreen)
+![Tailwind](https://img.shields.io/badge/Tailwind-v4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## ✨ 主要功能
@@ -179,11 +180,17 @@ npm run build:win
 
 ## 🛠️ 技术栈
 
-- **Electron**：跨平台桌面应用框架
+- **Electron 40**：跨平台桌面应用框架（最新版本）
+- **React 18**：用户界面库
+- **TypeScript**：类型安全的开发
+- **Vite 5**：快速的构建工具
+- **Tailwind CSS v4.0**：实用优先的 CSS 框架（最新版本）
+- **Base UI**：Uber 的 React 组件库
 - **Node.js**：后端运行时
 - **Canvas API**：图像处理和渲染
 - **Windows PTP/MTP**：相机连接（原生支持）
 - **digiCamControl API**：高级相机控制（可选）
+- **gphoto2 (WSL2)**：专业相机控制（可选）
 - **HTML5/CSS3/JavaScript**：前端界面
 
 ## 📁 项目结构
