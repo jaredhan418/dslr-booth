@@ -11,7 +11,6 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import fetch from 'node-fetch';
 
 const execAsync = promisify(exec);
 
@@ -141,9 +140,14 @@ class CameraInterface {
   private async checkDigiCamControl(): Promise<boolean> {
     try {
       // digiCamControl default API endpoint
+      // Use AbortSignal for timeout in Electron's built-in fetch
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000);
+      
       const response = await fetch('http://localhost:5513/api/camera/list', {
-        timeout: 1000
-      } as any);
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
       return response.ok;
     } catch (error) {
       return false;
