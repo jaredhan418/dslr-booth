@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "name": "Event Template",
+  "description": "Generic event template with title and footer",
+  "layers": [
+    {
+      "type": "text",
+      "text": "Event Photo Booth",
+      "x": 400,
+      "y": 50,
+      "fontSize": 42,
+      "fontFamily": "Arial",
+      "color": "white",
+      "align": "center",
+      "visible": true,
+      "opacity": 0.9
+    },
+    {
+      "type": "text",
+      "text": "www.example.com",
+      "x": 400,
+      "y": 570,
+      "fontSize": 20,
+      "fontFamily": "Arial",
+      "color": "white",
+      "align": "center",
+      "visible": true,
+      "opacity": 0.8
+    }
+  ]
+}
