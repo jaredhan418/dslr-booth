@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "canvas": "^2.11.2",
-    "gphoto2": "^0.1.4"
+    "node-fetch": "^2.7.0"
   },
   "build": {
     "appId": "com.dslr-booth.app",

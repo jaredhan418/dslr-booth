@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const camera = require('./camera-interface');
 
 let mainWindow;
 
@@ -55,9 +56,8 @@ if (!fs.existsSync(templatesDir)) {
 // Camera connection handler
 ipcMain.handle('connect-camera', async (event) => {
   try {
-    // This will be implemented with gphoto2 binding
-    // For now, return mock success for development
-    return { success: true, message: 'Camera connected successfully' };
+    const result = await camera.connect();
+    return result;
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -66,9 +66,8 @@ ipcMain.handle('connect-camera', async (event) => {
 // Live preview handler
 ipcMain.handle('get-preview', async (event) => {
   try {
-    // This will capture preview frame from camera
-    // Return base64 encoded image
-    return { success: true, preview: null };
+    const result = await camera.getPreview();
+    return result;
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -77,17 +76,23 @@ ipcMain.handle('get-preview', async (event) => {
 // Capture photo handler
 ipcMain.handle('capture-photo', async (event) => {
   try {
-    const timestamp = Date.now();
-    const filename = `photo_${timestamp}.jpg`;
-    const filepath = path.join(capturedPhotosDir, filename);
+    const result = await camera.capturePhoto();
     
-    // This will capture photo from camera
-    // For now, return mock data
-    return { 
-      success: true, 
-      filepath: filepath,
-      filename: filename
-    };
+    if (result.success) {
+      const timestamp = Date.now();
+      const filename = `photo_${timestamp}.jpg`;
+      const filepath = path.join(capturedPhotosDir, filename);
+      
+      return { 
+        success: true, 
+        filepath: filepath,
+        filename: filename,
+        mode: result.mode,
+        requiresManualGeneration: result.requiresManualGeneration || false
+      };
+    }
+    
+    return result;
   } catch (error) {
     return { success: false, message: error.message };
   }

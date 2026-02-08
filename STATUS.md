@@ -11,12 +11,15 @@
 ### ✅ 已完成功能
 
 #### 1. 核心相机功能
-- [x] Sony/Canon 相机 USB 连接支持
+- [x] Sony/Canon 相机 USB 连接支持（Windows 优化）
+- [x] Windows PTP/MTP 设备检测
+- [x] digiCamControl 集成支持
 - [x] 相机连接状态检测
-- [x] 实时预览功能（10 FPS）
+- [x] 实时预览功能（digiCamControl 模式）
 - [x] 即时拍照功能
 - [x] 倒计时拍照（1-10 秒可调）
 - [x] 倒计时视觉效果
+- [x] 多模式自动切换（演示/PTP/digiCamControl）
 
 #### 2. 图像处理功能
 - [x] 6 种实时滤镜：
@@ -84,11 +87,12 @@
 ### 🚧 待完善功能
 
 #### 1. 相机支持
-- [ ] 实际 gPhoto2 集成（当前为模拟）
-- [ ] Sony 相机驱动测试
-- [ ] Canon 相机驱动测试
+- [x] Windows 原生 PTP 支持（已完成）
+- [x] digiCamControl 集成（已完成）
+- [ ] Sony 相机完整控制（需要 Sony SDK）
+- [ ] Canon EDSDK 直接集成（可选高级功能）
 - [ ] 相机参数调节（ISO、快门、光圈）
-- [ ] 多相机支持
+- [ ] 多相机同时支持
 
 #### 2. 图标和资源
 - [ ] 专业应用图标（.ico）
@@ -154,10 +158,12 @@
 - **Electron**: ^27.0.0 - 桌面应用框架
 - **Node.js**: >= 14.0.0 - 运行时环境
 - **Canvas API**: 图像处理和渲染
+- **Windows PTP/MTP**: 原生相机支持
+- **digiCamControl API**: 可选的高级相机控制
 
 ### 依赖库
 - **canvas**: ^2.11.2 - Canvas 实现
-- **gphoto2**: ^0.1.4 - 相机控制（待集成）
+- **node-fetch**: ^2.7.0 - HTTP 请求（digiCamControl API）
 - **electron-builder**: ^24.6.4 - 应用打包
 
 ### 开发工具
@@ -167,9 +173,10 @@
 ## 已知问题
 
 ### 相机集成
-- ⚠️ gPhoto2 集成尚未完成，当前使用模拟数据
-- ⚠️ 实时预览功能需要实际相机测试
-- ⚠️ Windows 上 gPhoto2 配置较复杂
+- ✅ **已解决**：gPhoto2 不支持 Windows，已改用 Windows PTP 和 digiCamControl
+- ⚠️ Windows PTP 模式功能有限（仅基础检测）
+- ⚠️ Sony 相机通过 digiCamControl 支持有限
+- ⚠️ 实时预览需要 digiCamControl 模式
 
 ### 性能
 - ⚠️ 大图像处理可能较慢
@@ -221,6 +228,15 @@
 - 电子邮件 - 私密问题咨询
 
 ## 更新日志
+
+### v1.1.0 (2026-02-08)
+- 🔧 移除 gPhoto2 依赖（Windows 不兼容）
+- ✨ 添加 Windows PTP/MTP 原生支持
+- ✨ 集成 digiCamControl API
+- ✨ 实现自动相机检测和模式选择
+- 📝 添加详细的 Windows 相机设置指南
+- 🐛 修复 Windows 平台相机连接问题
+- 📚 更新所有文档以反映 Windows 优化
 
 ### v1.0.0 (2026-02-08)
 - 🎉 初始版本发布

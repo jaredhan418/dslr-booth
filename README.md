@@ -8,11 +8,18 @@
 
 ## ✨ 主要功能
 
-### 📷 相机控制
+### 📷 相机控制（Windows 优化）
+- **多种连接模式**：
+  - Windows PTP 基础模式（即插即用）
+  - digiCamControl 完整模式（推荐）
+  - 演示模式（无相机测试）
 - **USB 连接支持**：直接通过 USB 连接 Sony 和 Canon 数码相机
-- **实时预览**：查看相机实时画面
+- **实时预览**：查看相机实时画面（digiCamControl 模式）
 - **即时拍照**：一键拍摄高质量照片
 - **倒计时模式**：支持 1-10 秒倒计时拍照，完美适合自拍
+
+> **注意**：gPhoto2 不支持 Windows。本应用使用 Windows 原生 PTP 和 digiCamControl 集成。
+> 详细设置请参阅 [Windows 相机设置指南](WINDOWS_CAMERA_SETUP.md)
 
 ### 🎨 图像处理
 - **实时滤镜系统**：
@@ -47,6 +54,19 @@
 - **Node.js**：14.0 或更高版本
 - **相机**：Sony 或 Canon 数码相机（支持 PTP/MTP 协议）
 - **USB 连接**：USB 2.0 或更高版本
+- **可选软件**：digiCamControl（推荐用于完整相机控制）
+
+### Windows 相机支持
+
+本应用提供三种相机控制模式：
+
+1. **演示模式**：无相机时用于开发和测试
+2. **Windows PTP 模式**：基础相机检测（原生支持）
+3. **digiCamControl 模式**：完整功能（需安装，推荐）
+
+**重要提示**：gPhoto2 库不支持 Windows 平台。本应用已优化为使用 Windows 兼容的相机控制方案。
+
+详细设置指南请参阅：[Windows 相机设置指南](WINDOWS_CAMERA_SETUP.md)
 
 ### 安装步骤
 
@@ -79,10 +99,25 @@ npm run build:win
 
 ### 连接相机
 
-1. 通过 USB 线缆将 Sony 或 Canon 相机连接到电脑
-2. 打开相机电源
-3. 在应用中点击"连接相机"按钮
-4. 等待连接成功提示
+本应用支持多种相机连接模式，会自动检测最佳可用模式：
+
+**模式 1：digiCamControl（推荐）**
+1. 下载并安装 [digiCamControl](https://digicamcontrol.com/download)
+2. 启动 digiCamControl 并连接相机
+3. 在 digiCamControl 中启用 Web Server（Settings → Web Server）
+4. 启动本应用，点击"连接相机"
+
+**模式 2：Windows PTP（基础）**
+1. 通过 USB 线缆将相机连接到电脑
+2. 在相机中设置 USB 模式为 "PTP" 或 "PC Remote"
+3. Windows 会自动识别相机
+4. 启动应用，点击"连接相机"
+
+**模式 3：演示模式（无相机）**
+- 无需相机，应用会自动使用演示模式
+- 可以测试所有界面功能和图像处理功能
+
+**详细设置指南**：请查看 [WINDOWS_CAMERA_SETUP.md](WINDOWS_CAMERA_SETUP.md)
 
 ### 拍摄照片
 
@@ -147,7 +182,8 @@ npm run build:win
 - **Electron**：跨平台桌面应用框架
 - **Node.js**：后端运行时
 - **Canvas API**：图像处理和渲染
-- **gPhoto2**：相机控制库（Sony/Canon 支持）
+- **Windows PTP/MTP**：相机连接（原生支持）
+- **digiCamControl API**：高级相机控制（可选）
 - **HTML5/CSS3/JavaScript**：前端界面
 
 ## 📁 项目结构
@@ -155,6 +191,7 @@ npm run build:win
 ```
 dslr-booth/
 ├── main.js              # Electron 主进程
+├── camera-interface.js  # Windows 相机控制接口
 ├── renderer.js          # 渲染进程（UI 逻辑）
 ├── index.html           # 应用界面
 ├── styles.css           # 样式表
@@ -162,13 +199,24 @@ dslr-booth/
 ├── assets/              # 应用资源（图标等）
 ├── templates/           # 图层模板目录
 ├── captured_photos/     # 保存的照片目录
-└── README.md           # 项目文档
+├── README.md           # 项目文档
+└── WINDOWS_CAMERA_SETUP.md  # Windows 相机设置指南
 ```
 
 ## 🎯 核心功能实现
 
-### 相机连接
-应用使用 gPhoto2 库通过 USB 与相机通信。支持的相机型号包括大多数 Sony 和 Canon 数码相机。
+### 相机连接（Windows 优化）
+应用使用 Windows 原生相机支持和可选的 digiCamControl 集成：
+
+1. **自动检测**：应用会自动检测可用的相机和控制模式
+2. **Windows PTP**：使用 Windows 原生 PTP/MTP 驱动进行基础相机检测
+3. **digiCamControl**：通过 HTTP API 集成实现完整相机控制
+4. **演示模式**：无相机时自动启用，用于开发和演示
+
+**重要提示**：
+- gPhoto2 不支持 Windows，本应用不使用 gPhoto2
+- 推荐安装 digiCamControl 以获得最佳体验
+- 详细设置请参阅 [WINDOWS_CAMERA_SETUP.md](WINDOWS_CAMERA_SETUP.md)
 
 ### 实时预览
 通过定期从相机获取预览帧，并在 Canvas 上渲染，实现实时预览功能。
