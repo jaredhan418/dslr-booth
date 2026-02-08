@@ -9,23 +9,42 @@
  * 4. Vendor SDKs (Canon EDSDK, Sony SDK) - future enhancement
  */
 
-const { exec, spawn } = require('child_process');
-const util = require('util');
-const execAsync = util.promisify(exec);
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import fetch from 'node-fetch';
+
+const execAsync = promisify(exec);
+
+interface CameraInfo {
+  name: string;
+  type: string;
+}
+
+interface CameraResult {
+  success: boolean;
+  message: string;
+  cameraType?: string;
+  mode?: string;
+  filepath?: string;
+  filename?: string;
+  requiresManualGeneration?: boolean;
+  preview?: string | null;
+  settings?: any;
+}
+
+type CameraType = 'none' | 'demo' | 'ptp' | 'digicamcontrol' | 'edsdk' | 'sony';
 
 class CameraInterface {
-  constructor() {
-    this.connected = false;
-    this.cameraType = 'none'; // 'none', 'demo', 'ptp', 'digicamcontrol', 'edsdk', 'sony'
-    this.cameraInfo = null;
-    this.previewMode = false;
-  }
+  private connected: boolean = false;
+  private cameraType: CameraType = 'none';
+  private cameraInfo: CameraInfo | null = null;
+  private previewMode: boolean = false;
 
   /**
    * Detect available cameras on Windows
    * Uses Windows Device Manager to list PTP/MTP devices
    */
-  async detectCameras() {
+  async detectCameras(): Promise<CameraInfo[]> {
     try {
       // Try to list PTP devices using Windows PowerShell
       const { stdout } = await execAsync(
@@ -48,7 +67,7 @@ class CameraInterface {
   /**
    * Detect camera brand from device name
    */
-  detectCameraType(deviceName) {
+  private detectCameraType(deviceName: string): string {
     const name = deviceName.toLowerCase();
     if (name.includes('canon')) return 'canon';
     if (name.includes('sony')) return 'sony';
@@ -58,10 +77,10 @@ class CameraInterface {
 
   /**
    * Connect to camera
-   * @param {Object} options - Connection options
-   * @returns {Promise<Object>} Connection result
+   * @param options - Connection options
+   * @returns Connection result
    */
-  async connect(options = {}) {
+  async connect(options: any = {}): Promise<CameraResult> {
     try {
       // First try to detect actual cameras
       const cameras = await this.detectCameras();
@@ -107,7 +126,7 @@ class CameraInterface {
         mode: 'demo'
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Camera connection error:', error);
       return {
         success: false,
@@ -119,13 +138,12 @@ class CameraInterface {
   /**
    * Check if digiCamControl is running and accessible
    */
-  async checkDigiCamControl() {
+  private async checkDigiCamControl(): Promise<boolean> {
     try {
       // digiCamControl default API endpoint
-      const fetch = require('node-fetch');
       const response = await fetch('http://localhost:5513/api/camera/list', {
         timeout: 1000
-      });
+      } as any);
       return response.ok;
     } catch (error) {
       return false;
@@ -135,7 +153,7 @@ class CameraInterface {
   /**
    * Disconnect from camera
    */
-  async disconnect() {
+  async disconnect(): Promise<CameraResult> {
     this.connected = false;
     this.cameraType = 'none';
     this.cameraInfo = null;
@@ -149,9 +167,9 @@ class CameraInterface {
 
   /**
    * Get camera preview frame
-   * @returns {Promise<Object>} Preview data with base64 image
+   * @returns Preview data with base64 image
    */
-  async getPreview() {
+  async getPreview(): Promise<CameraResult> {
     if (!this.connected) {
       return {
         success: false,
@@ -171,7 +189,7 @@ class CameraInterface {
         preview: null,
         message: '实时预览在当前模式下不可用'
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: `预览失败: ${error.message}`
@@ -182,9 +200,8 @@ class CameraInterface {
   /**
    * Get preview from digiCamControl
    */
-  async getDigiCamPreview() {
+  private async getDigiCamPreview(): Promise<CameraResult> {
     try {
-      const fetch = require('node-fetch');
       const response = await fetch('http://localhost:5513/api/camera/preview');
       
       if (response.ok) {
@@ -192,7 +209,8 @@ class CameraInterface {
         const base64 = buffer.toString('base64');
         return {
           success: true,
-          preview: `data:image/jpeg;base64,${base64}`
+          preview: `data:image/jpeg;base64,${base64}`,
+          message: ''
         };
       }
       
@@ -200,7 +218,7 @@ class CameraInterface {
         success: false,
         message: 'Preview not available'
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: error.message
@@ -210,9 +228,9 @@ class CameraInterface {
 
   /**
    * Capture a photo
-   * @returns {Promise<Object>} Capture result with file path
+   * @returns Capture result with file path
    */
-  async capturePhoto() {
+  async capturePhoto(): Promise<CameraResult> {
     if (!this.connected) {
       return {
         success: false,
@@ -234,7 +252,7 @@ class CameraInterface {
           requiresManualGeneration: true
         };
       }
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: `拍照失败: ${error.message}`
@@ -245,15 +263,14 @@ class CameraInterface {
   /**
    * Capture photo using digiCamControl
    */
-  async captureWithDigiCam() {
+  private async captureWithDigiCam(): Promise<CameraResult> {
     try {
-      const fetch = require('node-fetch');
       const response = await fetch('http://localhost:5513/api/camera/capture', {
         method: 'POST'
       });
       
       if (response.ok) {
-        const result = await response.json();
+        const result: any = await response.json();
         return {
           success: true,
           message: '拍照成功',
@@ -266,7 +283,7 @@ class CameraInterface {
         success: false,
         message: 'Capture failed'
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: error.message
@@ -279,7 +296,7 @@ class CameraInterface {
    * Note: Windows PTP has limited capture API support
    * This is a placeholder for future implementation
    */
-  async captureWithPTP() {
+  private async captureWithPTP(): Promise<CameraResult> {
     // Windows PTP doesn't have a simple command-line interface for capture
     // This would require using Windows Portable Device API (WPD)
     // For now, return demo mode indication
@@ -294,7 +311,7 @@ class CameraInterface {
   /**
    * Get camera settings
    */
-  async getSettings() {
+  async getSettings(): Promise<CameraResult> {
     if (!this.connected) {
       return {
         success: false,
@@ -305,6 +322,7 @@ class CameraInterface {
     // Return basic camera info
     return {
       success: true,
+      message: '',
       settings: {
         connected: this.connected,
         type: this.cameraType,
@@ -318,17 +336,17 @@ class CameraInterface {
   /**
    * Check if camera is connected
    */
-  isConnected() {
+  isConnected(): boolean {
     return this.connected;
   }
 
   /**
    * Get current camera type
    */
-  getCameraType() {
+  getCameraType(): CameraType {
     return this.cameraType;
   }
 }
 
 // Export singleton instance
-module.exports = new CameraInterface();
+export default new CameraInterface();

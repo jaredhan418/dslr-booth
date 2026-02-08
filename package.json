@@ -2,7 +2,7 @@
   "name": "dslr-booth",
   "version": "2.0.0",
   "description": "Modern DSLR Photo Booth with Electron, React, and gphoto2 support",
-  "main": "electron/main.js",
+  "main": "electron/main.ts",
   "type": "module",
   "scripts": {
     "dev": "vite",

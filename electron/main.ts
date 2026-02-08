@@ -1,12 +1,16 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const path = require('path');
-const fs = require('fs');
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import camera modules
-const cameraInterface = require('./camera-interface');
-const gphoto2WSL = require('./gphoto2-wsl');
+import cameraInterface from './camera-interface.js';
+import gphoto2WSL from './gphoto2-wsl.js';
 
-let mainWindow;
+let mainWindow: BrowserWindow | null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -61,7 +65,7 @@ if (!fs.existsSync(templatesDir)) {
 // IPC Handlers
 
 // Camera connection handler with multi-backend support
-ipcMain.handle('connect-camera', async (event, options = {}) => {
+ipcMain.handle('connect-camera', async (event, options: any = {}) => {
   try {
     // Try gphoto2-wsl first if requested
     if (options.preferGPhoto2) {
@@ -75,7 +79,7 @@ ipcMain.handle('connect-camera', async (event, options = {}) => {
     // Fallback to existing camera interface
     const result = await cameraInterface.connect(options);
     return result;
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
@@ -90,7 +94,7 @@ ipcMain.handle('check-gphoto2-wsl', async () => {
       wslAvailable: gphoto2WSL.wslAvailable,
       gphoto2Available: gphoto2WSL.gphoto2Available
     };
-  } catch (error) {
+  } catch (error: any) {
     return {
       success: false,
       available: false,
@@ -107,7 +111,7 @@ ipcMain.handle('list-usb-devices', async () => {
       success: true,
       devices: devices
     };
-  } catch (error) {
+  } catch (error: any) {
     return {
       success: false,
       message: error.message
@@ -126,13 +130,13 @@ ipcMain.handle('get-preview', async (event) => {
     // Fallback to camera interface
     const result = await cameraInterface.getPreview();
     return result;
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
 
 // Capture photo handler
-ipcMain.handle('capture-photo', async (event, options = {}) => {
+ipcMain.handle('capture-photo', async (event, options: any = {}) => {
   try {
     // Try gphoto2-wsl first if connected
     if (gphoto2WSL.isConnected()) {
@@ -159,7 +163,7 @@ ipcMain.handle('capture-photo', async (event, options = {}) => {
     }
     
     return result;
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
@@ -174,13 +178,13 @@ ipcMain.handle('get-camera-config', async () => {
       success: false,
       message: 'gphoto2 not connected'
     };
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
 
 // Set camera config (gphoto2 specific)
-ipcMain.handle('set-camera-config', async (event, key, value) => {
+ipcMain.handle('set-camera-config', async (event, key: string, value: string) => {
   try {
     if (gphoto2WSL.isConnected()) {
       return await gphoto2WSL.setConfig(key, value);
@@ -189,13 +193,13 @@ ipcMain.handle('set-camera-config', async (event, key, value) => {
       success: false,
       message: 'gphoto2 not connected'
     };
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
 
 // Save processed image handler
-ipcMain.handle('save-image', async (event, dataUrl, filename) => {
+ipcMain.handle('save-image', async (event, dataUrl: string, filename: string) => {
   try {
     const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
@@ -204,23 +208,21 @@ ipcMain.handle('save-image', async (event, dataUrl, filename) => {
     fs.writeFileSync(filepath, buffer);
     
     return { success: true, filepath: filepath };
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
 
 // Print image handler
-ipcMain.handle('print-image', async (event, filepath) => {
+ipcMain.handle('print-image', async (event, filepath: string) => {
   try {
-    const { shell } = require('electron');
-    
     if (fs.existsSync(filepath)) {
       shell.openPath(filepath);
       return { success: true, message: 'Print dialog opened' };
     } else {
       return { success: false, message: 'File not found' };
     }
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
@@ -228,7 +230,7 @@ ipcMain.handle('print-image', async (event, filepath) => {
 // Load template handler
 ipcMain.handle('load-template', async (event) => {
   try {
-    const result = await dialog.showOpenDialog(mainWindow, {
+    const result = await dialog.showOpenDialog(mainWindow!, {
       properties: ['openFile'],
       filters: [
         { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif'] },
@@ -258,15 +260,15 @@ ipcMain.handle('load-template', async (event) => {
         type: 'image'
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
 
 // Save template handler
-ipcMain.handle('save-template', async (event, templateData) => {
+ipcMain.handle('save-template', async (event, templateData: any) => {
   try {
-    const result = await dialog.showSaveDialog(mainWindow, {
+    const result = await dialog.showSaveDialog(mainWindow!, {
       defaultPath: path.join(templatesDir, 'template.json'),
       filters: [
         { name: 'Template', extensions: ['json'] }
@@ -277,10 +279,10 @@ ipcMain.handle('save-template', async (event, templateData) => {
       return { success: false, message: 'Cancelled' };
     }
     
-    fs.writeFileSync(result.filePath, JSON.stringify(templateData, null, 2));
+    fs.writeFileSync(result.filePath!, JSON.stringify(templateData, null, 2));
     
     return { success: true, filepath: result.filePath };
-  } catch (error) {
+  } catch (error: any) {
     return { success: false, message: error.message };
   }
 });
@@ -296,13 +298,13 @@ ipcMain.handle('get-photos', async () => {
         filepath: path.join(capturedPhotosDir, filename),
         timestamp: fs.statSync(path.join(capturedPhotosDir, filename)).mtime
       }))
-      .sort((a, b) => b.timestamp - a.timestamp);
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
     
     return {
       success: true,
       photos: photos
     };
-  } catch (error) {
+  } catch (error: any) {
     return {
       success: false,
       message: error.message

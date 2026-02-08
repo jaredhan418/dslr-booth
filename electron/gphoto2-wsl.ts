@@ -11,21 +11,38 @@
  * 4. USB device attached to WSL2: usbipd wsl attach --busid <busid>
  */
 
-const { exec, spawn } = require('child_process');
-const util = require('util');
-const execAsync = util.promisify(exec);
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+interface CameraInfo {
+  model: string;
+  port: string;
+  type: string;
+}
+
+interface GPhoto2Result {
+  success: boolean;
+  message: string;
+  mode?: string;
+  camera?: CameraInfo;
+  filepath?: string;
+  filename?: string;
+  config?: string;
+  preview?: string;
+}
 
 class GPhoto2WSL {
-  constructor() {
-    this.wslAvailable = false;
-    this.gphoto2Available = false;
-    this.connected = false;
-  }
+  public wslAvailable: boolean = false;
+  public gphoto2Available: boolean = false;
+  private connected: boolean = false;
+  private cameraInfo: CameraInfo | null = null;
 
   /**
    * Check if WSL2 is available and gphoto2 is installed
    */
-  async checkAvailability() {
+  async checkAvailability(): Promise<boolean> {
     try {
       // Check if WSL is available
       const { stdout: wslCheck } = await execAsync('wsl --status');
@@ -48,7 +65,7 @@ class GPhoto2WSL {
       }
 
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.log('Error checking WSL/gphoto2:', error.message);
       return false;
     }
@@ -57,7 +74,7 @@ class GPhoto2WSL {
   /**
    * List attached USB devices using usbipd
    */
-  async listUSBDevices() {
+  async listUSBDevices(): Promise<string> {
     try {
       const { stdout } = await execAsync('usbipd wsl list');
       return stdout;
@@ -69,7 +86,7 @@ class GPhoto2WSL {
   /**
    * Auto-detect and attach camera to WSL2
    */
-  async autoAttachCamera() {
+  private async autoAttachCamera(): Promise<boolean> {
     try {
       const devices = await this.listUSBDevices();
       
@@ -93,7 +110,7 @@ class GPhoto2WSL {
       
       console.log('No camera found to attach');
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error attaching camera:', error.message);
       return false;
     }
@@ -102,13 +119,13 @@ class GPhoto2WSL {
   /**
    * Detect cameras using gphoto2 in WSL2
    */
-  async detectCameras() {
+  private async detectCameras(): Promise<CameraInfo[]> {
     try {
       const { stdout } = await execAsync('wsl gphoto2 --auto-detect');
       
       // Parse gphoto2 output
       const lines = stdout.split('\n').filter(line => line.trim());
-      const cameras = [];
+      const cameras: CameraInfo[] = [];
       
       for (const line of lines) {
         if (line.includes('usb:')) {
@@ -133,7 +150,7 @@ class GPhoto2WSL {
   /**
    * Detect camera brand from model name
    */
-  detectCameraType(modelName) {
+  private detectCameraType(modelName: string): string {
     const name = modelName.toLowerCase();
     if (name.includes('canon')) return 'canon';
     if (name.includes('sony')) return 'sony';
@@ -144,7 +161,7 @@ class GPhoto2WSL {
   /**
    * Connect to camera
    */
-  async connect() {
+  async connect(): Promise<GPhoto2Result> {
     try {
       // Check if WSL and gphoto2 are available
       const available = await this.checkAvailability();
@@ -182,7 +199,7 @@ class GPhoto2WSL {
           mode: 'no-camera'
         };
       }
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: `连接失败: ${error.message}`,
@@ -194,7 +211,7 @@ class GPhoto2WSL {
   /**
    * Capture photo using gphoto2
    */
-  async capturePhoto(options = {}) {
+  async capturePhoto(options: any = {}): Promise<GPhoto2Result> {
     if (!this.connected) {
       return {
         success: false,
@@ -221,7 +238,7 @@ class GPhoto2WSL {
         filename: filename,
         mode: 'gphoto2-wsl'
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: `拍照失败: ${error.message}`
@@ -232,7 +249,7 @@ class GPhoto2WSL {
   /**
    * Get camera configuration
    */
-  async getConfig() {
+  async getConfig(): Promise<GPhoto2Result> {
     if (!this.connected) {
       return { success: false, message: '相机未连接' };
     }
@@ -241,9 +258,10 @@ class GPhoto2WSL {
       const { stdout } = await execAsync('wsl gphoto2 --list-config');
       return {
         success: true,
+        message: '',
         config: stdout
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: error.message
@@ -254,7 +272,7 @@ class GPhoto2WSL {
   /**
    * Set camera configuration
    */
-  async setConfig(key, value) {
+  async setConfig(key: string, value: string): Promise<GPhoto2Result> {
     if (!this.connected) {
       return { success: false, message: '相机未连接' };
     }
@@ -265,7 +283,7 @@ class GPhoto2WSL {
         success: true,
         message: `设置 ${key} = ${value}`
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: error.message
@@ -276,7 +294,7 @@ class GPhoto2WSL {
   /**
    * Get live preview (if supported)
    */
-  async getPreview() {
+  async getPreview(): Promise<GPhoto2Result> {
     if (!this.connected) {
       return { success: false, message: '相机未连接' };
     }
@@ -295,9 +313,10 @@ class GPhoto2WSL {
       
       return {
         success: true,
+        message: '',
         preview: `data:image/jpeg;base64,${base64}`
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         message: '预览不可用'
@@ -308,7 +327,7 @@ class GPhoto2WSL {
   /**
    * Disconnect from camera
    */
-  async disconnect() {
+  async disconnect(): Promise<GPhoto2Result> {
     this.connected = false;
     this.cameraInfo = null;
     return {
@@ -320,16 +339,16 @@ class GPhoto2WSL {
   /**
    * Check connection status
    */
-  isConnected() {
+  isConnected(): boolean {
     return this.connected;
   }
 
   /**
    * Get camera info
    */
-  getCameraInfo() {
+  getCameraInfo(): CameraInfo | null {
     return this.cameraInfo;
   }
 }
 
-module.exports = new GPhoto2WSL();
+export default new GPhoto2WSL();
