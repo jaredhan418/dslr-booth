@@ -180,8 +180,8 @@ function App() {
                 <h3 className="font-semibold text-lg">相机设置</h3>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">连接模式</label>
-                  <p className="text-sm text-gray-600">
+                  <label className="text-sm font-medium" htmlFor="connection-mode">连接模式</label>
+                  <p id="connection-mode" className="text-sm text-gray-600">
                     {gphoto2Available ? (
                       <span className="text-green-600">✓ gphoto2 可用</span>
                     ) : wslAvailable ? (
@@ -204,8 +204,8 @@ function App() {
                 )}
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">倒计时</label>
-                  <Input type="number" defaultValue="3" min="1" max="10" />
+                  <label className="text-sm font-medium" htmlFor="countdown-input">倒计时</label>
+                  <Input id="countdown-input" type="number" defaultValue="3" min="1" max="10" />
                 </div>
               </TabsContent>
               
