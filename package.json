@@ -2,13 +2,13 @@
   "name": "dslr-booth",
   "version": "2.1.0",
   "description": "Modern DSLR Photo Booth with Electron, React, and gphoto2 support",
-  "main": "electron/main.ts",
+  "main": "dist-electron/main.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:dev": "vite",
     "electron:build": "vite build && electron-builder",
     "electron:build:win": "vite build && electron-builder --win"
   },
@@ -53,7 +53,7 @@
     "appId": "com.dslr-booth.app",
     "productName": "DSLR Booth",
     "directories": {
-      "output": "dist-electron"
+      "output": "dist-electron-builder"
     },
     "win": {
       "target": [
@@ -63,7 +63,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
+      "dist-electron/**/*",
       "assets/**/*"
     ]
   }
