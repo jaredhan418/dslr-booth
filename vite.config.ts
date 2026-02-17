@@ -24,13 +24,12 @@ export default defineConfig({
       {
         // Preload script
         entry: 'electron/preload.ts',
-        onstart(options) {
-          // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete
-          options.reload();
-        },
         vite: {
           build: {
-            outDir: 'dist-electron'
+            outDir: 'dist-electron',
+            rollupOptions: {
+              external: ['electron']
+            }
           }
         }
       }

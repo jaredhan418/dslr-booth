@@ -4,6 +4,8 @@
 
 ![DSLR Photo Booth](https://img.shields.io/badge/platform-Windows-blue)
 ![Electron](https://img.shields.io/badge/Electron-40.0.0-brightgreen)
+![React](https://img.shields.io/badge/React-19.2-blue)
+![Vite](https://img.shields.io/badge/Vite-7.3-purple)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -18,9 +20,7 @@
 - **实时预览**：查看相机实时画面（digiCamControl 模式）
 - **即时拍照**：一键拍摄高质量照片
 - **倒计时模式**：支持 1-10 秒倒计时拍照，完美适合自拍
-
-> **注意**：gPhoto2 不支持 Windows。本应用使用 Windows 原生 PTP 和 digiCamControl 集成。
-> 详细设置请参阅 [Windows 相机设置指南](WINDOWS_CAMERA_SETUP.md)
+- **gphoto2 WSL2 支持**：通过 WSL2 实现专业的 gphoto2 相机控制（可选）
 
 ### 🎨 图像处理
 - **实时滤镜系统**：
@@ -57,17 +57,16 @@
 - **USB 连接**：USB 2.0 或更高版本
 - **可选软件**：digiCamControl（推荐用于完整相机控制）
 
-### Windows 相机支持
+### 相机支持
 
-本应用提供三种相机控制模式：
+本应用提供多种相机控制模式：
 
 1. **演示模式**：无相机时用于开发和测试
 2. **Windows PTP 模式**：基础相机检测（原生支持）
 3. **digiCamControl 模式**：完整功能（需安装，推荐）
+4. **gphoto2 WSL2 模式**：专业级控制（通过 WSL2，可选）
 
-**重要提示**：gPhoto2 库不支持 Windows 平台。本应用已优化为使用 Windows 兼容的相机控制方案。
-
-详细设置指南请参阅：[Windows 相机设置指南](WINDOWS_CAMERA_SETUP.md)
+详细设置指南请参阅：[UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)
 
 ### 安装步骤
 
@@ -118,7 +117,7 @@ npm run build:win
 - 无需相机，应用会自动使用演示模式
 - 可以测试所有界面功能和图像处理功能
 
-**详细设置指南**：请查看 [WINDOWS_CAMERA_SETUP.md](WINDOWS_CAMERA_SETUP.md)
+**详细设置指南**：请查看 [UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)
 
 ### 拍摄照片
 
@@ -180,50 +179,58 @@ npm run build:win
 
 ## 🛠️ 技术栈
 
-- **Electron 40**：跨平台桌面应用框架（最新版本）
-- **React 18**：用户界面库
-- **TypeScript**：类型安全的开发
-- **Vite 5**：快速的构建工具
-- **Tailwind CSS v4.0**：实用优先的 CSS 框架（最新版本）
+- **Electron 40.0.0**：跨平台桌面应用框架（最新版本）
+- **React 19.2.4**：用户界面库（最新版本）
+- **TypeScript 5.9.3**：类型安全的开发
+- **Vite 7.3.1**：极速构建工具（最新版本）
+- **Tailwind CSS v4.0**：实用优先的 CSS 框架（最新版本，CSS-first 配置）
 - **Base UI**：Uber 的 React 组件库
+- **ESLint v9**：代码质量检查（flat config）
 - **Node.js**：后端运行时
 - **Canvas API**：图像处理和渲染
 - **Windows PTP/MTP**：相机连接（原生支持）
 - **digiCamControl API**：高级相机控制（可选）
 - **gphoto2 (WSL2)**：专业相机控制（可选）
-- **HTML5/CSS3/JavaScript**：前端界面
 
 ## 📁 项目结构
 
 ```
 dslr-booth/
-├── main.js              # Electron 主进程
-├── camera-interface.js  # Windows 相机控制接口
-├── renderer.js          # 渲染进程（UI 逻辑）
-├── index.html           # 应用界面
-├── styles.css           # 样式表
-├── package.json         # 项目配置
-├── assets/              # 应用资源（图标等）
-├── templates/           # 图层模板目录
-├── captured_photos/     # 保存的照片目录
-├── README.md           # 项目文档
-└── WINDOWS_CAMERA_SETUP.md  # Windows 相机设置指南
+├── electron/                   # Electron 主进程代码
+│   ├── main.ts                # 主进程入口（TypeScript）
+│   ├── preload.ts             # 预加载脚本
+│   ├── camera-interface.ts    # 相机控制接口
+│   └── gphoto2-wsl.ts        # gphoto2 WSL2 包装器
+├── src/                       # React 应用代码
+│   ├── components/            # React 组件
+│   │   └── ui/               # UI 组件库
+│   ├── App.tsx               # 主应用组件
+│   └── main.tsx              # React 入口
+├── dist-electron/             # Electron 编译输出
+├── dist/                      # React 构建输出
+├── templates/                 # 图层模板目录
+├── captured_photos/           # 保存的照片目录
+├── package.json              # 项目配置
+├── vite.config.ts            # Vite 配置
+├── tsconfig.json             # TypeScript 配置
+├── eslint.config.js          # ESLint v9 配置
+├── README.md                 # 项目文档
+├── UPGRADE_GUIDE.md          # 升级和设置指南
+└── TAILWIND_V4_MIGRATION.md  # Tailwind v4 迁移指南
 ```
 
 ## 🎯 核心功能实现
 
-### 相机连接（Windows 优化）
-应用使用 Windows 原生相机支持和可选的 digiCamControl 集成：
+### 相机连接
+应用支持多种相机控制模式，会自动检测最佳可用模式：
 
 1. **自动检测**：应用会自动检测可用的相机和控制模式
 2. **Windows PTP**：使用 Windows 原生 PTP/MTP 驱动进行基础相机检测
-3. **digiCamControl**：通过 HTTP API 集成实现完整相机控制
-4. **演示模式**：无相机时自动启用，用于开发和演示
+3. **digiCamControl**：通过 HTTP API 集成实现完整相机控制（推荐）
+4. **gphoto2 WSL2**：通过 WSL2 实现专业级相机控制（可选）
+5. **演示模式**：无相机时自动启用，用于开发和演示
 
-**重要提示**：
-- gPhoto2 不支持 Windows，本应用不使用 gPhoto2
-- 推荐安装 digiCamControl 以获得最佳体验
-- 详细设置请参阅 [WINDOWS_CAMERA_SETUP.md](WINDOWS_CAMERA_SETUP.md)
+详细设置请参阅 [UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)
 
 ### 实时预览
 通过定期从相机获取预览帧，并在 Canvas 上渲染，实现实时预览功能。
@@ -240,19 +247,26 @@ dslr-booth/
 ### 打印集成
 通过 Electron 的 shell 模块调用 Windows 系统的打印服务，支持所有系统打印机。
 
-## 🔧 配置选项
+## 🔧 开发指南
 
-### 相机设置
-在 `main.js` 中可以配置相机连接参数：
-- 连接超时时间
-- 预览帧率
-- 图像质量
+### 代码质量
+本项目配置了完整的代码质量工具：
 
-### 滤镜默认值
-在 `renderer.js` 中的 `currentFilters` 对象可以修改滤镜的默认值。
+- **ESLint v9**：使用 flat config 格式，包含 React、TypeScript 和 Electron 规则
+- **TypeScript**：严格模式，完整的类型检查
+- **Prettier 友好**：代码风格统一
 
-### 界面主题
-在 `styles.css` 中可以自定义应用的颜色主题和布局。
+### 构建系统
+- **Vite 7**：极速开发和构建
+- **HMR**：热模块替换，开发时即时更新
+- **TypeScript 编译**：自动编译 Electron 和 React 代码
+- **优化打包**：生产构建自动优化和压缩
+
+### 配置文件
+- `vite.config.ts`：Vite 和 Electron 构建配置
+- `eslint.config.js`：ESLint v9 flat config
+- `tsconfig.json`：TypeScript 配置（React）
+- `electron/tsconfig.json`：TypeScript 配置（Electron）
 
 ## 🤝 贡献
 
