@@ -6,6 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Log paths for debugging
+console.log('Main process __dirname:', __dirname);
+console.log('Main process __filename:', __filename);
+
 // Import camera modules
 import cameraInterface from './camera-interface.js';
 import gphoto2WSL from './gphoto2-wsl.js';
@@ -13,6 +17,10 @@ import gphoto2WSL from './gphoto2-wsl.js';
 let mainWindow: BrowserWindow | null;
 
 function createWindow() {
+  const preloadPath = path.join(__dirname, 'preload.js');
+  console.log('Preload script path:', preloadPath);
+  console.log('Preload script exists:', fs.existsSync(preloadPath));
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -20,7 +28,7 @@ function createWindow() {
       // Modern Electron security settings
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: preloadPath
     },
     icon: path.join(__dirname, '..', 'assets', 'icon.png')
   });

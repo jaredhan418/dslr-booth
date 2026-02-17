@@ -20,6 +20,13 @@ function App() {
 
   const checkGPhoto2Availability = async () => {
     try {
+      // Check if electronAPI is available (preload script loaded)
+      if (!window.electronAPI || !window.electronAPI.checkGPhoto2WSL) {
+        console.warn('electronAPI not available - preload script may not have loaded')
+        setStatusMessage('Electron API 未加载')
+        return
+      }
+
       const result = await window.electronAPI.checkGPhoto2WSL()
       if (result.success) {
         setGphoto2Available(result.available)
@@ -35,10 +42,16 @@ function App() {
       }
     } catch (error) {
       console.error('检查 gphoto2 失败:', error)
+      setStatusMessage('检查 gphoto2 失败')
     }
   }
 
   const connectCamera = async () => {
+    if (!window.electronAPI || !window.electronAPI.connectCamera) {
+      setStatusMessage('Electron API 未加载')
+      return
+    }
+
     setStatusMessage('正在连接相机...')
     
     try {
@@ -59,6 +72,11 @@ function App() {
   }
 
   const capturePhoto = async () => {
+    if (!window.electronAPI || !window.electronAPI.capturePhoto) {
+      setStatusMessage('Electron API 未加载')
+      return
+    }
+
     if (!connected) {
       setStatusMessage('请先连接相机')
       return
