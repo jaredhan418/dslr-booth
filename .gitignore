@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-electron/
+dist-electron-builder/
+build/
+*.log
+.DS_Store
+Thumbs.db
+captured_photos/
+temp/
+*.old
+.vite/

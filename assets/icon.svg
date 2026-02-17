@@ -1,0 +1,38 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="256" height="256" rx="40" fill="url(#gradient)"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Camera body -->
+  <rect x="48" y="88" width="160" height="120" rx="12" fill="white" opacity="0.95"/>
+  
+  <!-- Lens -->
+  <circle cx="128" cy="148" r="36" fill="#667eea"/>
+  <circle cx="128" cy="148" r="24" fill="#764ba2"/>
+  <circle cx="128" cy="148" r="12" fill="white" opacity="0.5"/>
+  
+  <!-- Flash -->
+  <rect x="168" y="100" width="28" height="16" rx="4" fill="white" opacity="0.95"/>
+  
+  <!-- Viewfinder -->
+  <rect x="60" y="100" width="20" height="12" rx="3" fill="#667eea"/>
+  
+  <!-- Button -->
+  <circle cx="188" cy="148" r="8" fill="#FF6B6B"/>
+  
+  <!-- Film strip decoration -->
+  <rect x="48" y="68" width="160" height="12" fill="white" opacity="0.8"/>
+  <rect x="56" y="72" width="8" height="4" fill="#667eea"/>
+  <rect x="72" y="72" width="8" height="4" fill="#667eea"/>
+  <rect x="88" y="72" width="8" height="4" fill="#667eea"/>
+  <rect x="168" y="72" width="8" height="4" fill="#667eea"/>
+  <rect x="184" y="72" width="8" height="4" fill="#667eea"/>
+  <rect x="200" y="72" width="8" height="4" fill="#667eea"/>
+</svg>

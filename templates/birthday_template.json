@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "name": "Birthday Template",
+  "description": "Birthday celebration template with decorative frame",
+  "layers": [
+    {
+      "type": "text",
+      "text": "🎉 Happy Birthday! 🎉",
+      "x": 400,
+      "y": 50,
+      "fontSize": 48,
+      "fontFamily": "Arial",
+      "color": "#FF6B6B",
+      "align": "center",
+      "visible": true,
+      "opacity": 1
+    },
+    {
+      "type": "text",
+      "text": "Celebrate with us!",
+      "x": 400,
+      "y": 550,
+      "fontSize": 32,
+      "fontFamily": "Arial",
+      "color": "#4ECDC4",
+      "align": "center",
+      "visible": true,
+      "opacity": 1
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color tokens */
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(20% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(20% 0 0);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(20% 0 0);
+  --color-primary: oklch(30% 0.05 240);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(96% 0.005 240);
+  --color-secondary-foreground: oklch(30% 0.05 240);
+  --color-muted: oklch(96% 0.005 240);
+  --color-muted-foreground: oklch(50% 0.01 240);
+  --color-accent: oklch(96% 0.005 240);
+  --color-accent-foreground: oklch(30% 0.05 240);
+  --color-destructive: oklch(60% 0.25 25);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-border: oklch(92% 0.005 240);
+  --color-input: oklch(92% 0.005 240);
+  --color-ring: oklch(20% 0 0);
+  
+  /* Border radius */
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-background: oklch(20% 0 0);
+    --color-foreground: oklch(98% 0 0);
+    --color-card: oklch(20% 0 0);
+    --color-card-foreground: oklch(98% 0 0);
+    --color-popover: oklch(20% 0 0);
+    --color-popover-foreground: oklch(98% 0 0);
+    --color-primary: oklch(98% 0 0);
+    --color-primary-foreground: oklch(30% 0.05 240);
+    --color-secondary: oklch(25% 0.01 240);
+    --color-secondary-foreground: oklch(98% 0 0);
+    --color-muted: oklch(25% 0.01 240);
+    --color-muted-foreground: oklch(65% 0.01 240);
+    --color-accent: oklch(25% 0.01 240);
+    --color-accent-foreground: oklch(98% 0 0);
+    --color-destructive: oklch(40% 0.2 25);
+    --color-destructive-foreground: oklch(98% 0 0);
+    --color-border: oklch(25% 0.01 240);
+    --color-input: oklch(25% 0.01 240);
+    --color-ring: oklch(84% 0.02 240);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
