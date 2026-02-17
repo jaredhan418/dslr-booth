@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import electron from 'vite-plugin-electron';
+import renderer from 'vite-plugin-electron-renderer';
 import path from 'path';
 
 export default defineConfig({
@@ -12,6 +13,10 @@ export default defineConfig({
       {
         // Main process entry point
         entry: 'electron/main.ts',
+        onstart(options) {
+          // Start Electron after build completes
+          options.startup();
+        },
         vite: {
           build: {
             outDir: 'dist-electron',
@@ -24,6 +29,10 @@ export default defineConfig({
       {
         // Preload script
         entry: 'electron/preload.ts',
+        onstart(options) {
+          // Notify main process to reload preload
+          options.reload();
+        },
         vite: {
           build: {
             outDir: 'dist-electron',
@@ -33,7 +42,8 @@ export default defineConfig({
           }
         }
       }
-    ])
+    ]),
+    renderer()
   ],
   resolve: {
     alias: {
